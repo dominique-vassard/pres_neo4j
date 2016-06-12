@@ -77,11 +77,55 @@ MERGE (l:Line {name: name, color: color})
 FOREACH(ind IN inc |
 	MERGE(prev:Station {longitude: toFloat(stations_pos[ind-1][1]), latitude: toFloat(stations_pos[ind-1][0])})
 	MERGE(next:Station {longitude: toFloat(stations_pos[ind][1]), latitude: toFloat(stations_pos[ind][0])})
-	// WHERE longitude: toFloat(stations_pos[ind-1][1]) AND latitude  = toFloat(stations_pos[ind-1][0])
-	// MATCH(next:Station)
-	// WHERE longitude = toFloat(stations_pos[ind][1]) AND latitude  = toFloat(stations_pos[ind][0])
 	MERGE (prev)-[:NEXT_STATION {dist: distance(point(prev), point(next))}]->(next)
     MERGE(prev)-[:IS_OF_LINE]->(l)
     MERGE(next)-[:IS_OF_LINE]->(l)
 )
 RETURN name, color, inc;
+
+
+//Get distance between 2 stations
+MATCH (start:Station {name:"NATION"}), 
+      (end:Station {name:"RANELAGH"}),
+      paths = (start)<-[:NEXT_STATION*..30]-(end)
+WITH paths AS paths,
+REDUCE(total_dist = 0, rel in rels(paths) | total_dist + rel.dist) AS total_dist
+RETURN nodes(paths), total_dist
+ORDER BY total_dist
+LIMIT 5;
+
+//Better with djisktra
+MATCH (start:Station {name:"NATION"}), 
+      (end:Station {name:"RANELAGH"})
+WITH start, end
+CALL apoc.algo.dijkstra(start, end, 'NEXT_STATION', 'dist') YIELD path, weight
+RETURN path, weight;
+
+//Get linked stations
+MATCH (l:Line),
+      (s:Station)-[:IS_OF_LINE]->(l),
+      (s)-[r:NEXT_STATION]->(s2:Station),
+      (s2:Station)-[:IS_OF_LINE]->(l)
+WHERE l.name IN ["3bis", "3"]
+RETURN l.name, s.name, s2.name, r.dist
+ORDER BY l.name;
+
+//Add inter-station status
+MATCH (s:Station)-[r:NEXT_STATION]->(s2:Station)
+SET r.isOpened = true
+RETURN COUNT(s);
+
+//Get shortest route between 2 stations
+MATCH (start:Station {name:"NATION"}), 
+      (end:Station {name:"RANELAGH"}),
+      paths = (start)<-[:NEXT_STATION*..30{isOpened: true}]-(end)
+WITH paths AS paths,
+REDUCE(total_dist = 0, rel in rels(paths) | total_dist + rel.dist) AS total_dist
+RETURN nodes(paths), total_dist
+ORDER BY total_dist
+LIMIT 1;
+
+//Close one station
+MATCH (s1:Station {name:"BONNE NOUVELLE"})-[r:NEXT_STATION]->(s2:Station {name:"STRASBOURG-SAINT-DENIS"})
+SET r.isOpened = false
+RETURN s1, s2;
