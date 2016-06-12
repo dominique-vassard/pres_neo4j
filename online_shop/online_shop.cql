@@ -1,10 +1,10 @@
 CREATE 
 //Customers
-(jane:Customer {firstName:"Jane", lastName: "Mitchell", city:"Los Angeles", age: "25"}),
-(michael:Customer {firstName:"Michael", lastName: "Humpiks", city: "Birmingham", age: "31"}),
-(emily:Customer {firstName:"Emily", lastName: "Berty", city: "Los Angeles", age: "50"}),
-(stan:Customer {firstName:"Stan", lastName: "Kanovitch", city: "Chicago", age: "23"}),
-(kenny:Customer {firstName:"Kenny", lastName: "Terate", city: "New York", age: "32"}),
+(jane:Customer {firstName:"Jane", gender: "Female", lastName: "Mitchell", city:"Los Angeles", age: 25}),
+(michael:Customer {firstName:"Michael", gender: "Male", lastName: "Humpiks", city: "Birmingham", age: 31}),
+(emily:Customer {firstName:"Emily", gender: "Female", lastName: "Berty", city: "Los Angeles", age: 50}),
+(stan:Customer {firstName:"Stan", gender: "Male", lastName: "Kanovitch", city: "Chicago", age: 23}),
+(kenny:Customer {firstName:"Kenny", gender: "Male", lastName: "Terate", city: "New York", age: 32}),
 
 //Categorys
 (book:Category {name: "Book"}),
@@ -66,3 +66,72 @@ CREATE
 CREATE INDEX ON :Customer(name);
 CREATE INDEX ON :Category(name);
 CREATE INDEX ON :Product(name);
+
+//Recommend product of the same category when a customer add a porduct to his cart
+//Example: a customer adds "Terror" to his cart
+MATCH (p:Product {name: "Terror"})-[:IS_IN_CATEGORY]->(c:Category),
+      (p)<-[:ORDERED]-(cu:Customer),
+      (cu)-[:ORDERED]->(rec:Product)-[:IS_IN_CATEGORY]->(c)
+WHERE rec <> p
+RETURN rec;
+
+//Recommendations depending on age
+MATCH (p:Product {name: "S.I.V.A"}),
+      (p)<-[:ORDERED]-(cu:Customer),
+      (cu)-[:ORDERED]->(rec:Product)
+WHERE rec <> p 
+AND cu.age + 5 >= 25 AND cu.age - 5 <= 25
+RETURN DISTINCT rec;       
+
+//We noticed that Kenny didn't order anything
+//and we want to send him an email with few products he might like
+//Maybe somthing in his town
+MATCH (c:Customer {firstName: "Kenny"}),
+      (p:Product)
+WHERE p.location = c.city
+RETURN DISTINCT p;
+
+//Send him what was ordered by customer with same gender and approximatively the same age!
+MATCH (c:Customer {firstName: "Kenny"}),
+      (cu:Customer)-[:ORDERED]->(rec:Product)
+WHERE cu.gender = c.gender 
+AND cu.age + 5 >= c.age AND cu.age - 5 <= c.age
+RETURN DISTINCT rec;
+
+//Finally, Kenny ordered something
+MATCH  (c:Customer {firstName: "Kenny"}),
+       (p:Product {name:"Motorhead at Madison Garden"})
+CREATE (c)-[:ORDERED]->(p);
+
+//Now we want to send email with recommendations to customer with similar profiles
+//First we need to compute similarities
+//Add info for comparison
+MATCH (c:Customer)-[:ORDERED]->(p:Product),
+      (p)-[:IS_IN_CATEGORY]->(cat:Category)
+WITH c, cat, COUNT(p) AS nb_products
+CREATE (c)-[r:LIKES]->(cat)
+SET r.strength = nb_products;
+
+//Compute similarities
+// MATCH (c1:Customer)-[c1likes:LIKES]->(cat:Category),
+//       (c2:Customer)-[c2likes:LIKES]->(cat)
+// WHERE c1 <> c2
+// WITH COUNT(cat) AS nbCommonCategory, c1, c2
+// COLLECT (c1likes.strength - c2likes.strength)^2 AS likes
+// RETURN  nbCommonCategory, likes, c1.name, c2.name
+// RETURN c1.name, c2.name, SQRT(REDUCE(total = 0.0 | ilike ))
+
+// MATCH (c1:Customer)-[c1likes:LIKES]->(cat:Category),
+//       (c2:Customer)-[c2likes:LIKES]->(cat)
+// WHERE c1 <> c2
+// WITH COUNT(cat) AS nbCommonCategory, c1, c2,
+// COLLECT((c1likes.strength - c2likes.strength)^2) AS likes
+// RETURN  nbCommonCategory, likes, c1.firstName, c2.firstName;
+
+// MATCH (c1:Customer)-[c1likes:LIKES]->(cat:Category),
+//       (c2:Customer)-[c2likes:LIKES]->(cat)
+// WHERE c1 <> c2
+// WITH COUNT(cat) AS nbCommonCategory, c1, c2,
+// COLLECT((c1likes.strength - c2likes.strength)^2) AS likes
+// RETURN  SQRT(REDUCE(total = 0.0 ,  l IN likes | total + l)),
+// nbCommonCategory, likes, c1.firstName, c2.firstName;

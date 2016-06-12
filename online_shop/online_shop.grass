@@ -51,3 +51,8 @@ relationship.ORDERED {
   text-color-internal: #FFFFFF;
 }
 
+relationship.LIKES {
+  color: #68BDF6;
+  border-color: #5CA8DB;
+  text-color-internal: #FFFFFF;
+}
