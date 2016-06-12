@@ -6,10 +6,10 @@ with open("stations.json") as stations:
 
 with open("stations.csv", "w+") as file:
   csvWriter = csv.writer(file)
-  csvWriter.writerow(["name", "city", "district", "traffic", "longitude", "latitude"])
+  csvWriter.writerow(["id", "name", "city", "district", "traffic", "longitude", "latitude"])
   for station in data["features"]:
-    print station
     csvWriter.writerow([
+      station["properties"]["ID"],
       station["properties"]["STATION"],
       station["properties"]['CITY'].encode('utf8'),
       station["properties"]['QUARTER'],
