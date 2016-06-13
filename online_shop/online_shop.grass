@@ -35,7 +35,7 @@ node.Customer {
   color: #FF756E;
   border-color: #E06760;
   text-color-internal: #FFFFFF;
-  caption: '{name}';
+  caption: '{firstName}';
 }
 
 relationship.IS_IN_CATEGORY {

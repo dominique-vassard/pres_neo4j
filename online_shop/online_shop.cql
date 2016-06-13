@@ -1,4 +1,4 @@
-CREATE 
+CREATE
 //Customers
 (jane:Customer {firstName:"Jane", gender: "Female", lastName: "Mitchell", city:"Los Angeles", age: 25}),
 (michael:Customer {firstName:"Michael", gender: "Male", lastName: "Humpiks", city: "Birmingham", age: 31}),
@@ -79,9 +79,9 @@ RETURN rec;
 MATCH (p:Product {name: "S.I.V.A"}),
       (p)<-[:ORDERED]-(cu:Customer),
       (cu)-[:ORDERED]->(rec:Product)
-WHERE rec <> p 
+WHERE rec <> p
 AND cu.age + 5 >= 25 AND cu.age - 5 <= 25
-RETURN DISTINCT rec;       
+RETURN DISTINCT rec;
 
 //We noticed that Kenny didn't order anything
 //and we want to send him an email with few products he might like
@@ -94,7 +94,7 @@ RETURN DISTINCT p;
 //Send him what was ordered by customer with same gender and approximatively the same age!
 MATCH (c:Customer {firstName: "Kenny"}),
       (cu:Customer)-[:ORDERED]->(rec:Product)
-WHERE cu.gender = c.gender 
+WHERE cu.gender = c.gender
 AND cu.age + 5 >= c.age AND cu.age - 5 <= c.age
 RETURN DISTINCT rec;
 
@@ -109,29 +109,36 @@ CREATE (c)-[:ORDERED]->(p);
 MATCH (c:Customer)-[:ORDERED]->(p:Product),
       (p)-[:IS_IN_CATEGORY]->(cat:Category)
 WITH c, cat, COUNT(p) AS nb_products
-CREATE (c)-[r:LIKES]->(cat)
-SET r.strength = nb_products;
+MERGE (c)-[r:LIKES]->(cat)
+ON CREATE SET r.strength = nb_products;
 
-//Compute similarities
-// MATCH (c1:Customer)-[c1likes:LIKES]->(cat:Category),
-//       (c2:Customer)-[c2likes:LIKES]->(cat)
-// WHERE c1 <> c2
-// WITH COUNT(cat) AS nbCommonCategory, c1, c2
-// COLLECT (c1likes.strength - c2likes.strength)^2 AS likes
-// RETURN  nbCommonCategory, likes, c1.name, c2.name
-// RETURN c1.name, c2.name, SQRT(REDUCE(total = 0.0 | ilike ))
+//Shortcut: add strength 0 relationships
+MATCH (cat:Category),
+      (c:Customer)
+WHERE NOT (c)-[:LIKES]->(cat)
+WITH c, cat
+MERGE (c)-[r:LIKES]->(cat)
+ON CREATE sET r.strength = 0;
 
-// MATCH (c1:Customer)-[c1likes:LIKES]->(cat:Category),
-//       (c2:Customer)-[c2likes:LIKES]->(cat)
-// WHERE c1 <> c2
-// WITH COUNT(cat) AS nbCommonCategory, c1, c2,
-// COLLECT((c1likes.strength - c2likes.strength)^2) AS likes
-// RETURN  nbCommonCategory, likes, c1.firstName, c2.firstName;
+//Add similarities relationships
+MATCH (c1:Customer)-[c1likes:LIKES]->(cat:Category),
+      (c2:Customer)-[c2likes:LIKES]->(cat)
+WHERE id(c1) > id(c2)
+WITH c1, c2, COLLECT((c1likes.strength - c2likes.strength)^2) AS plikes
+WITH c1, c2, SQRT(REDUCE(total = 0.0, like IN plikes | total + like)) AS distance
+// RETURN c1.firstName, c2.firstName, distance, 1 / ( 1 + distance) AS similarity;
+CREATE (c1)-[s:SIMILAR_TO]->(c2)
+SET s.similarity = 1 / ( 1 + distance);
 
-// MATCH (c1:Customer)-[c1likes:LIKES]->(cat:Category),
-//       (c2:Customer)-[c2likes:LIKES]->(cat)
-// WHERE c1 <> c2
-// WITH COUNT(cat) AS nbCommonCategory, c1, c2,
-// COLLECT((c1likes.strength - c2likes.strength)^2) AS likes
-// RETURN  SQRT(REDUCE(total = 0.0 ,  l IN likes | total + l)),
-// nbCommonCategory, likes, c1.firstName, c2.firstName;
+//get category where customer has no score
+MATCH (cat:Category),
+      (c:Customer)
+WHERE NOT (c)-[:LIKES]->(cat)
+RETURN c.firstName, cat.name
+ORDER BY c.firstName, cat.name;
+
+//Add orders for Test
+MATCH (c:Customer {firstName:"Jane"}),
+      (p:Product {name: "Terror"})
+CREATE (c)-[:ORDERED]->(p)
+RETURN c, p ;
