@@ -56,3 +56,9 @@ relationship.LIKES {
   border-color: #5CA8DB;
   text-color-internal: #FFFFFF;
 }
+
+relationship.SIMILAR_TO {
+  color: #FF756E;
+  border-color: #E06760;
+  text-color-internal: #FFFFFF;
+}
