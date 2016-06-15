@@ -1,0 +1,147 @@
+node {
+  diameter: 50px;
+  color: #A5ABB6;
+  border-color: #9AA1AC;
+  border-width: 2px;
+  text-color-internal: #FFFFFF;
+  font-size: 10px;
+  caption: '<id>';
+}
+
+relationship {
+  color: #A5ABB6;
+  shaft-width: 3px;
+  font-size: 8px;
+  padding: 3px;
+  text-color-external: #000000;
+  text-color-internal: #FFFFFF;
+  caption: '<type>';
+}
+
+node.Person {
+  color: #6DCE9E;
+  border-color: #60B58B;
+  text-color-internal: #FFFFFF;
+  caption: '{name}';
+}
+
+node.Agent {
+  color: #FB95AF;
+  border-color: #E0849B;
+  text-color-internal: #FFFFFF;
+  caption: '{name}';
+}
+
+node.Hovercraft {
+  color: #FFD86E;
+  border-color: #EDBA39;
+  text-color-internal: #604A0E;
+  caption: '{name}';
+}
+
+relationship.LOVES {
+  color: #6DCE9E;
+  border-color: #60B58B;
+  text-color-internal: #FFFFFF;
+}
+
+node.person {
+  color: #A5ABB6;
+  border-color: #9AA1AC;
+  text-color-internal: #FFFFFF;
+  caption: '{name}';
+}
+
+node.City {
+  color: #DE9BF9;
+  border-color: #BF85D6;
+  text-color-internal: #FFFFFF;
+  caption: '{name}';
+}
+
+relationship.BELIEVES_IN {
+  color: #6DCE9E;
+  border-color: #60B58B;
+  text-color-internal: #FFFFFF;
+}
+
+relationship.CREW_OF {
+  color: #FFD86E;
+  border-color: #EDBA39;
+  text-color-internal: #604A0E;
+}
+
+relationship.OWNS {
+  color: #FFD86E;
+  border-color: #EDBA39;
+  text-color-internal: #604A0E;
+}
+
+relationship.BETRAYED {
+  color: #6DCE9E;
+  border-color: #60B58B;
+  text-color-internal: #FFFFFF;
+}
+
+relationship.CORRUPTS {
+  color: #6DCE9E;
+  border-color: #60B58B;
+  text-color-internal: #FFFFFF;
+}
+
+relationship.HATES {
+  color: #6DCE9E;
+  border-color: #60B58B;
+  text-color-internal: #FFFFFF;
+}
+
+relationship.IS_FROM {
+  color: #DE9BF9;
+  border-color: #BF85D6;
+  text-color-internal: #FFFFFF;
+}
+
+relationship.KILLED {
+  color: #6DCE9E;
+  border-color: #60B58B;
+  text-color-internal: #FFFFFF;
+}
+
+relationship.WANTED_TO_DESTROY {
+  color: #DE9BF9;
+  border-color: #BF85D6;
+  text-color-internal: #FFFFFF;
+}
+
+node.Exile {
+  color: #68BDF6;
+  border-color: #5CA8DB;
+  text-color-internal: #FFFFFF;
+  caption: '{name}';
+}
+
+relationship.HELPED {
+  color: #6DCE9E;
+  border-color: #60B58B;
+  text-color-internal: #FFFFFF;
+}
+
+relationship.PROTECTS {
+  color: #68BDF6;
+  border-color: #5CA8DB;
+  text-color-internal: #FFFFFF;
+}
+
+relationship.ONCE_SERVED {
+  color: #68BDF6;
+  border-color: #5CA8DB;
+  text-color-internal: #FFFFFF;
+}
+
+node.Movie {
+  color: #A5ABB6;
+  border-color: #9AA1AC;
+  text-color-internal: #FFFFFF;
+  caption: '{title}';
+}
+
