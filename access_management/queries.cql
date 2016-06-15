@@ -94,21 +94,39 @@ MERGE (p)-[r:HAS_ACCESS]->(adminIntern)
 ON CREATE SET r.from = 1457136000,
               r.to = 1470009599;
 
+// WITH apoc.date.parseDefault('2016-03-05 00:00:00', 's') AS start_date, apoc.date.parseDefault('2016-07-31 23:59:59', 's') AS end_date
+MATCH (p:Person {name:"Stan"}),
+      (adminIntern:Resource {name: "www.admin.intra.net"})
+WITH p, adminIntern
+CALL apoc.date.parseDefault('2016-03-05 00:00:00', 's') YIELD value AS start_date
+CALL apoc.date.parseDefault('2016-07-31 23:59:59', 's') YIELD value AS end_date
+MERGE (p)-[r:HAS_ACCESS]->(adminIntern)
+ON CREATE SET r.from = start_date,
+              r.to = end_date;
+              
+MATCH (p:Person {name:"Stan"}),
+      (p)-[r:HAS_ACCESS]->(adminIntern:Resource {name: "www.admin.intra.net"})
+// WITH p, r, adminIntern
+CALL apoc.date.formatDefault(r.from, 's') YIELD value AS start_date
+CALL apoc.date.formatDefault(r.to, 's') YIELD value AS end_date
+RETURN p.name, type(r), start_date, end_date;
+
 //Now get accesses
+CALL apoc.date.parseDefault('2016-02-05 00:00:00', 's') YIELD value AS check_date
 MATCH (p:Person {name:"Stan"}),
       (p)-[:IS_IN_GROUP]->(g:Group)
 OPTIONAL MATCH
       (p)-[:HAS_NO_ACCESS]->(noResP:Resource)
 OPTIONAL MATCH
       (g)-[:HAS_NO_ACCESS]->(noResG:Resource)
-WITH p, COLLECT(DISTINCT noResP.name) + COLLECT(DISTINCT noResG.name) AS no_access_resources
+WITH p, COLLECT(DISTINCT noResP.name) + COLLECT(DISTINCT noResG.name) AS no_access_resources, check_date
 MATCH (p)-[:IS_IN_GROUP]->(g:Group),
       // (p)-[accP:HAS_ACCESS|IS_IN_GROUP*0..2]->(resP:Resource)
       (p)-[:HAS_ACCESS|IS_IN_GROUP*0..2]->(resP:Resource)
 WHERE NOT resP.name IN no_access_resources
 OPTIONAL MATCH
       (p)-[accP:HAS_ACCESS]->(resD:Resource)
-WHERE 1467736500 >= accP.from AND 1467736500 <= accP.to
+WHERE check_date >= accP.from AND check_date <= accP.to
 OPTIONAL MATCH
       (g)-[HAS_ACCESS]->(resType:ResourceType)<-[:IS_OF_TYPE]-(resG:Resource)
 WHERE NOT resG.name IN no_access_resources
