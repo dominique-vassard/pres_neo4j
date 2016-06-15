@@ -1,4 +1,5 @@
-//Access management data
+//[Access management] Setup
+
 CREATE
 //Person
 (jane:Person {name: "Jane"}),
