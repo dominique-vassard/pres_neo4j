@@ -16,7 +16,7 @@ RETURN DISTINCT rec;
 
 //We noticed that Kenny didn't order anything
 //and we want to send him an email with few products he might like
-//Maybe somthing in his town
+//Maybe something in his town
 MATCH (c:Customer {firstName: "Kenny"}),
       (p:Product)
 WHERE p.location = c.city
@@ -49,7 +49,11 @@ MATCH (cat:Category),
 WHERE NOT (c)-[:LIKES]->(cat)
 WITH c, cat
 MERGE (c)-[r:LIKES]->(cat)
-ON CREATE sET r.strength = 0;
+ON CREATE SET r.strength = 0;
+
+//Check what's been done
+MATCH (c:Customer)-[r:LIKES]->(cat:Category) 
+RETURN c, r, cat;
 
 //Add similarities relationships
 MATCH (c1:Customer)-[c1likes:LIKES]->(cat:Category),
@@ -150,7 +154,7 @@ RETURN c.firstName, c.age, c.ageCluster;
 MATCH (c:Customer)-[:ORDERED]->(p:Product)
 RETURN c.ageCluster, COLLECT(p.name);
 
-//We want to sned email with articles of popular categories
+//We want to send email with articles of popular categories
 //What people prefer in the same age cluster
 MATCH (c:Customer {firstName: "Kenny"}),
       (c2:Customer)-[r:LIKES]->(cat:Category)

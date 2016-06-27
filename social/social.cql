@@ -41,4 +41,4 @@ RETURN DISTINCT formComp, formlanguage, trainer,  language_level, trainee.name, 
 
 //Here we get Java language, which is not used in Hipster Promises
 // This is due to Emily that worked before on Java project in Icy Software
-//But there is clearly a problme in ou model: Project are not linked to Company!!!!
+//But there is clearly a problem in our model: Project are not linked to Company!!!!

@@ -18,7 +18,6 @@ s.uid = toInt(line.id),
 s.traffic = toInt(line.traffic),
 s.longitude = toFloat(line.longitude),
 s.latitude = toFloat(line.latitude)
-//MERGE (s)-[:IS_IN_CITY]->(c)
 
 //Managing Paris districts (station is linekd to district and district to city)
 //(Station)-[:IS_IN_DISTRICT]->(District)-[:IS_IN_CITY]->(City)
@@ -35,7 +34,7 @@ FOREACH ( x IN (CASE WHEN line.city <> 'Paris' THEN [1] ELSE [] END) |
 
 RETURN COUNT(s);
 
-//Then lauch it really
+//Then launch it really
 USING PERIODIC COMMIT 500
 LOAD CSV WITH HEADERS FROM "file:/stations.csv" AS line
 MERGE (c:City {name: line.city})

@@ -78,7 +78,7 @@ RETURN n,r,m;
 //Inspect what we've created
 MATCH (n) RETURN n;
 
-//Oh god, what have Id done...
+//Oh god, what have I done...
 //Relationship beween Neo and trinity is in the wrong way
 //And I created additional Morpheus and Neo nodes...
 
@@ -142,6 +142,9 @@ MERGE (s)-[:ONCE_SERVED]->(m:Exile {name:"The Merovingian", firstAppearance:"Mat
 //Inspect what we've done
 MATCH (n) RETURN n;
 
+//Getting all who appears in Matrix I
+MATCH (n) WHERE n.firstAppearance = "Matrix I" RETURN n;
+
 //Well that's not clever if we want to get everyone first appearance
 //Then update all the things!
 MATCH (n)
@@ -152,6 +155,10 @@ REMOVE n.firstAppearance;
 
 //Inspect what we've done
 MATCH (n) RETURN n;
+
+//Now getting all who appears in Matrix I is 
+MATCH (n)-[:FIRST_APPEARED_IN]->(m:Movie {title: "Matrix I"})
+RETURN n;
 
 //Now some simple queries
 //Who Smith hates?

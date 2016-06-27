@@ -63,7 +63,7 @@ WHERE NOT resG.name IN no_access_resources
 RETURN size(COLLECT (DISTINCT resP.name) + COLLECT(DISTINCT resG.name)) as nb_access;
 
 //Optimization OK
-MATCH (p:Person {name:"Sue"})
+MATCH (p:Person {name:"Sue"}),
       (p)-[:IS_IN_GROUP]->(g:Group)
 OPTIONAL MATCH
       (p)-[:HAS_NO_ACCESS]->(noResP:Resource)
@@ -104,6 +104,7 @@ MERGE (p)-[r:HAS_ACCESS]->(adminIntern)
 ON CREATE SET r.from = start_date,
               r.to = end_date;
               
+//Check access dates
 MATCH (p:Person {name:"Stan"}),
       (p)-[r:HAS_ACCESS]->(adminIntern:Resource {name: "www.admin.intra.net"})
 // WITH p, r, adminIntern
